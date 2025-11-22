@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-white text-black;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+}
+
+/* Print styles */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Hide print button and non-printable elements */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Ensure form fits on one page */
+  .form-container {
+    page-break-inside: avoid;
+  }
+
+  /* Remove input borders when printing */
+  input[type="text"],
+  input[type="date"],
+  input[type="number"],
+  textarea {
+    border: none !important;
+    background: transparent !important;
+    -webkit-appearance: none;
+    padding: 0 !important;
+  }
+
+  /* Ensure canvas elements print correctly */
+  canvas {
+    max-width: 100%;
+    height: auto;
+  }
+}

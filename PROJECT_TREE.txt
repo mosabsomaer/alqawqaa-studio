@@ -1,0 +1,83 @@
+alqawqaa-studio/
+│
+├── 📋 Documentation
+│   ├── README.md                    - Full project documentation
+│   ├── QUICKSTART.md                - Quick start guide (3 steps)
+│   └── INSTALL.sh                   - Automated installation script
+│
+├── ⚙️ Configuration Files
+│   ├── package.json                 - NPM dependencies and scripts
+│   ├── package-lock.json            - Dependency lock file
+│   ├── tsconfig.json                - TypeScript config (React)
+│   ├── tsconfig.node.json           - TypeScript config (Electron)
+│   ├── electron.vite.config.ts      - Vite bundler for Electron
+│   ├── electron-builder.json        - Windows installer config
+│   ├── tailwind.config.js           - TailwindCSS config
+│   ├── postcss.config.js            - PostCSS config
+│   ├── biome.json                   - Linter/formatter config
+│   └── .gitignore                   - Git ignore rules
+│
+├── 🔌 Electron Main Process
+│   └── electron/
+│       ├── main.ts                  - Main process (window, IPC handlers)
+│       └── preload.ts               - IPC bridge (security layer)
+│
+├── ⚛️ React Application (Renderer)
+│   ├── index.html                   - HTML entry point (RTL support)
+│   └── src/
+│       ├── main.tsx                 - React entry point
+│       ├── App.tsx                  - Main form container (A4 layout)
+│       ├── index.css                - Global styles + print CSS
+│       ├── vite-env.d.ts            - TypeScript environment declarations
+│       │
+│       └── components/
+│           ├── Header.tsx           - Clinic header (logo + patient info)
+│           ├── AudiogramChart.tsx   - Interactive audiometry chart (Konva)
+│           ├── TympanometryChart.tsx - Tympanometry chart (Konva)
+│           ├── SpeechAudiometryTable.tsx - Speech test table
+│           ├── SymptomsTable.tsx    - Symptoms checklist
+│           ├── NotesSection.tsx     - Tympanometry/Audiometry notes
+│           └── Footer.tsx           - Doctor name + signature
+│
+└── 🎨 Assets
+    └── resources/
+        ├── README.md                - Assets instructions
+        ├── icon.png                 - ⏳ TODO: Add app icon (512x512)
+        └── clinic-logo.png          - ⏳ TODO: Add clinic logo
+
+═══════════════════════════════════════════════════════════════
+
+📊 File Count Summary:
+    - Configuration files: 10
+    - Electron files: 2
+    - React components: 7
+    - Documentation: 3
+    - Total source files: 22
+
+═══════════════════════════════════════════════════════════════
+
+🎯 Key Files to Understand:
+
+1. electron/main.ts          → Electron main process, IPC handlers
+2. src/App.tsx               → Main form layout and state
+3. src/components/*.tsx      → Individual form components
+4. src/index.css             → Print styles (@media print)
+5. package.json              → Scripts and dependencies
+
+═══════════════════════════════════════════════════════════════
+
+🚀 To Get Started:
+
+1. Fix npm permissions:
+   sudo chown -R $(id -u):$(id -g) "$HOME/.npm"
+
+2. Install dependencies:
+   ./INSTALL.sh
+
+3. Run development server:
+   npm run dev
+
+4. Build Windows installer:
+   npm run package:win
+
+═══════════════════════════════════════════════════════════════

@@ -1,0 +1,52 @@
+{
+  "name": "alqawqaa-studio",
+  "version": "1.0.0",
+  "description": "Digital audiometry and tympanometry form for Al-Qawqaa Clinic",
+  "main": "out/main/index.cjs",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "check": "biome check --write .",
+    "typecheck": "tsc --noEmit",
+    "package:win": "npm run build && electron-builder --win --config"
+  },
+  "keywords": [
+    "electron",
+    "audiometry",
+    "medical",
+    "desktop-app"
+  ],
+  "author": "Al-Qawqaa Clinic",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.1.17",
+    "better-sqlite3": "^12.4.6",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "konva": "^10.0.12",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-konva": "^19.2.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.7",
+    "@tailwindcss/forms": "^0.5.10",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.6",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "autoprefixer": "^10.4.22",
+    "electron": "^39.2.3",
+    "electron-builder": "^26.0.12",
+    "electron-vite": "^4.0.1",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.17",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.4"
+  }
+}
