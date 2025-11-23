@@ -3,7 +3,6 @@ interface HeaderProps {
     patientName: string
     age: string
     date: string
-    id: string
     doctor: string
     referredFrom: string
   }
@@ -16,34 +15,20 @@ export default function Header({ formData, setFormData }: HeaderProps) {
   }
 
   return (
-    <div className="mb-6 border-b-2 border-black pb-4">
+    <div className="pb-4 mb-6 border-b-2 border-black">
       {/* Top row: Logo and Patient Info */}
       <div className="flex items-start justify-between">
-        {/* Logo Section (Left) */}
-        <div className="flex flex-col items-center" style={{ width: '150px' }}>
-          <div className="mb-2 flex h-20 w-20 items-center justify-center rounded-full border-2 border-black bg-gray-100">
-            {/* Placeholder for logo - replace with actual logo */}
-            <span className="text-xs">LOGO</span>
-          </div>
-          <div className="text-center text-xs">
-            <p className="font-bold">شركة السلسبيل</p>
-            <p className="text-[10px]">عيادة القويعة</p>
-            <p className="text-[10px]">للسمع والنطق والكلام والأذن والحنجرة</p>
-            <p className="text-[10px]">1998</p>
-          </div>
-        </div>
-
-        {/* Patient Info Section (Right) */}
+        {/* Patient Info Section (Right in RTL) */}
         <div className="flex-1" dir="rtl">
           {/* First Row */}
-          <div className="mb-2 flex items-center gap-4 text-sm">
-            <div className="flex flex-1 items-center gap-2">
+          <div className="flex items-center gap-4 mb-2 text-sm">
+            <div className="flex items-center flex-1 gap-2">
               <label className="font-bold">الاسم:</label>
               <input
                 type="text"
                 value={formData.patientName}
                 onChange={(e) => handleChange('patientName', e.target.value)}
-                className="flex-1 border-b border-gray-400 bg-transparent px-1 text-right focus:border-blue-500 focus:outline-none"
+                className="flex-1 px-1 text-right bg-transparent border-b border-gray-400 focus:border-blue-500 focus:outline-none"
                 placeholder="اسم المريض"
               />
             </div>
@@ -54,7 +39,7 @@ export default function Header({ formData, setFormData }: HeaderProps) {
                 type="text"
                 value={formData.age}
                 onChange={(e) => handleChange('age', e.target.value)}
-                className="w-16 border-b border-gray-400 bg-transparent px-1 text-right focus:border-blue-500 focus:outline-none"
+                className="w-16 px-1 text-right bg-transparent border-b border-gray-400 focus:border-blue-500 focus:outline-none"
                 placeholder="العمر"
               />
             </div>
@@ -65,46 +50,53 @@ export default function Header({ formData, setFormData }: HeaderProps) {
                 type="date"
                 value={formData.date}
                 onChange={(e) => handleChange('date', e.target.value)}
-                className="border-b border-gray-400 bg-transparent px-1 focus:border-blue-500 focus:outline-none"
-              />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <label className="font-bold">ID:</label>
-              <input
-                type="text"
-                value={formData.id}
-                onChange={(e) => handleChange('id', e.target.value)}
-                className="w-24 border-b border-gray-400 bg-transparent px-1 text-right focus:border-blue-500 focus:outline-none"
-                placeholder="رقم الهوية"
+                className="px-1 bg-transparent border-b border-gray-400 focus:border-blue-500 focus:outline-none"
               />
             </div>
           </div>
 
           {/* Second Row */}
           <div className="flex items-center gap-4 text-sm">
-            <div className="flex flex-1 items-center gap-2">
+            <div className="flex items-center flex-1 gap-2">
               <label className="font-bold">الطبيب الفاحص:</label>
               <input
                 type="text"
                 value={formData.doctor}
                 onChange={(e) => handleChange('doctor', e.target.value)}
-                className="flex-1 border-b border-gray-400 bg-transparent px-1 text-right focus:border-blue-500 focus:outline-none"
+                className="flex-1 px-1 text-right bg-transparent border-b border-gray-400 focus:border-blue-500 focus:outline-none"
                 placeholder="اسم الطبيب"
               />
             </div>
 
-            <div className="flex flex-1 items-center gap-2">
+            <div className="flex items-center flex-1 gap-2">
               <label className="font-bold">محول من:</label>
               <input
                 type="text"
                 value={formData.referredFrom}
                 onChange={(e) => handleChange('referredFrom', e.target.value)}
-                className="flex-1 border-b border-gray-400 bg-transparent px-1 text-right focus:border-blue-500 focus:outline-none"
+                className="flex-1 px-1 text-right bg-transparent border-b border-gray-400 focus:border-blue-500 focus:outline-none"
                 placeholder="الجهة المحولة"
               />
             </div>
           </div>
+        </div>
+
+        {/* Logo Section (Left in RTL) */}
+        <div className="flex flex-col items-center ml-4" style={{ minWidth: '180px' }}>
+          <img
+            src="/resources/clinic-logo.png"
+            alt="Clinic Logo"
+            className="object-contain h-16 mb-2"
+            style={{ maxWidth: '180px' }}
+            onError={(e) => {
+              // Fallback if image not found
+              e.currentTarget.style.display = 'none'
+              const fallback = document.createElement('div')
+              fallback.className = 'flex items-center justify-center px-4 py-2 mb-2 text-xs bg-gray-100 border-2 border-black'
+              fallback.innerHTML = '<span>CLINIC LOGO</span>'
+              e.currentTarget.parentElement?.insertBefore(fallback, e.currentTarget)
+            }}
+          />
         </div>
       </div>
     </div>

@@ -75,7 +75,7 @@ export default function SymptomsTable({ data, onChange }: SymptomsTableProps) {
 
       {/* Test Reliability */}
       <div className="border-t border-gray-800 p-2">
-        <div className="mb-1 text-[11px] font-bold">Test<br/>Reliability</div>
+        <div className="mb-1 text-[11px] font-bold">Test Reliability</div>
         <div className="flex gap-2 text-[10px]">
           <label className="flex items-center gap-1">
             <input

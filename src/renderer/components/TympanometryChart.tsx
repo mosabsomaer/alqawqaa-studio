@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Stage, Layer, Line, Text, Circle, Rect } from 'react-konva'
+import { Circle, Layer, Line, Rect, Stage, Text } from 'react-konva'
 
 interface TympanometryChartProps {
   title: string
@@ -10,11 +10,16 @@ interface TympanometryChartProps {
 export default function TympanometryChart({ title, data, onChange }: TympanometryChartProps) {
   const [points, setPoints] = useState<{ x: number; y: number }[]>([])
 
-  const width = 180
+  // Reset when data prop changes to empty string
+  if (data === '' && points.length > 0) {
+    setPoints([])
+  }
+
+  const width = 320
   const height = 200
   const marginLeft = 40
   const marginTop = 20
-  const marginRight = 20
+  const marginRight = 40
   const marginBottom = 30
 
   const chartWidth = width - marginLeft - marginRight
@@ -74,12 +79,12 @@ export default function TympanometryChart({ title, data, onChange }: Tympanometr
   return (
     <div className="border border-gray-400">
       {/* Title */}
-      <div className="border-b border-gray-400 bg-gray-50 py-1 text-center text-sm font-bold">
+      <div className="py-1 text-sm font-bold text-center border-b border-gray-400 bg-gray-50">
         {title}
       </div>
 
       {/* Chart */}
-      <div className="relative bg-white">
+      <div className="relative bg-white cursor-crosshair">
         <Stage width={width} height={height} onClick={handleClick}>
           <Layer>
             {/* Shaded background area */}
@@ -170,7 +175,7 @@ export default function TympanometryChart({ title, data, onChange }: Tympanometr
         {/* Clear button */}
         <button
           onClick={handleClear}
-          className="no-print absolute right-2 top-2 rounded bg-red-500 px-2 py-1 text-xs text-white hover:bg-red-600"
+          className="absolute px-2 py-1 text-xs text-white bg-red-400 rounded cursor-pointer no-print left-2 top-2 hover:bg-red-600"
         >
           Clear
         </button>
