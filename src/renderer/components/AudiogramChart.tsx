@@ -25,7 +25,7 @@ export default function AudiogramChart({ title, data, onChange, selectedSymbol, 
   const [selectedSymbolId, setSelectedSymbolId] = useState<string | null>(null)
   const [hoveredPoint, setHoveredPoint] = useState<{ freq: number; db: number } | null>(null)
 
-  const frequencies = [0.125, 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4, 6, 8, 12]
+  const frequencies = [0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4, 6, 8]
   const dbLevels = Array.from({ length: 14 }, (_, i) => -10 + i * 10) // -10 to 120
 
   const width = 370
@@ -236,7 +236,7 @@ export default function AudiogramChart({ title, data, onChange, selectedSymbol, 
   return (
     <div className="border border-gray-400 cursor-crosshair">
       {/* Title */}
-      <div className="py-1 text-sm font-bold text-center border-b border-gray-400">
+      <div className="py-1 text-sm font-bold text-center border-b border-gray-400 bg-gray-50">
         {title}
       </div>
 
@@ -319,26 +319,45 @@ export default function AudiogramChart({ title, data, onChange, selectedSymbol, 
               fill="black"
             />
 
-            {/* Draw connecting lines between symbols of same type */}
+            {/* Draw connecting lines between symbols of same category */}
+            {/* AC unmasked + AC masked connect together, BC unmasked + BC masked connect together */}
             {(() => {
-              const symbolsByType = symbols.reduce((acc, symbol) => {
-                if (!acc[symbol.symbolType]) acc[symbol.symbolType] = []
-                acc[symbol.symbolType].push(symbol)
+              // Group symbols by category (ac-right, ac-left, bc-right, bc-left)
+              // NR symbols connect with their respective AC group
+              const getLineGroup = (symbolType: SymbolType): string | null => {
+                if (symbolType.startsWith('ac-right') || symbolType === 'nr-right') return 'ac-right'
+                if (symbolType.startsWith('ac-left') || symbolType === 'nr-left') return 'ac-left'
+                if (symbolType.startsWith('bc-right')) return 'bc-right'
+                if (symbolType.startsWith('bc-left')) return 'bc-left'
+                return null
+              }
+
+              const symbolsByGroup = symbols.reduce((acc, symbol) => {
+                const group = getLineGroup(symbol.symbolType)
+                if (group) {
+                  if (!acc[group]) acc[group] = []
+                  acc[group].push(symbol)
+                }
                 return acc
               }, {} as Record<string, PlacedSymbol[]>)
 
-              return Object.entries(symbolsByType).map(([type, syms]) => {
+              return Object.entries(symbolsByGroup).map(([group, syms]) => {
                 if (syms.length < 2) return null
                 const sorted = [...syms].sort((a, b) => a.freq - b.freq)
                 const points = sorted.flatMap((s) => [s.x, s.y])
-                const color = type.includes('right') || type === 'nr-right' ? '#EF4444' : '#3B82F6'
+                const color = group.includes('right') ? '#EF4444' : '#3B82F6'
+
+                // Determine if line should be dashed
+                // Only bone conduction (bc-*) groups should have dashed lines
+                const isDashed = group.startsWith('bc-')
+
                 return (
                   <Line
-                    key={`line-${type}`}
+                    key={`line-${group}`}
                     points={points}
                     stroke={color}
                     strokeWidth={1.5}
-                    dash={type.includes('masked') ? [5, 5] : undefined}
+                    dash={isDashed ? [5, 5] : undefined}
                   />
                 )
               })
@@ -362,7 +381,7 @@ export default function AudiogramChart({ title, data, onChange, selectedSymbol, 
         {/* Clear button */}
         <button
           onClick={handleClear}
-          className="absolute px-2 py-1 text-xs text-white bg-red-400 rounded cursor-pointer no-print left-7 top-0.5 hover:bg-red-600"
+          className="absolute px-2 py-1 text-xs text-gray-700 bg-white border border-gray-300 rounded shadow-sm cursor-pointer no-print left-7 top-0.5 hover:bg-gray-50"
         >
           Clear
         </button>

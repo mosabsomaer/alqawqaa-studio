@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import AudiogramChart from './components/AudiogramChart'
 import AudiometryToolbar, { type SymbolType } from './components/AudiometryToolbar'
-import Footer from './components/Footer'
 import Header from './components/Header'
 import SpeechAudiometryTable from './components/SpeechAudiometryTable'
 import SymptomsTable from './components/SymptomsTable'
@@ -99,7 +98,7 @@ export default function App() {
             onClick={handlePrint}
             className="flex items-center gap-2 px-5 py-2 text-gray-700 transition-all bg-white border border-gray-300 rounded shadow-sm cursor-pointer hover:bg-gray-50 hover:shadow"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
             </svg>
             طباعة
@@ -108,7 +107,7 @@ export default function App() {
             onClick={handleSave}
             className="flex items-center gap-2 px-5 py-2 text-gray-700 transition-all bg-white border border-gray-300 rounded shadow-sm cursor-pointer hover:bg-gray-50 hover:shadow"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
             </svg>
             حفظ
@@ -117,7 +116,7 @@ export default function App() {
             onClick={handleReset}
             className="flex items-center gap-2 px-5 py-2 text-gray-700 transition-all bg-white border border-gray-300 rounded shadow-sm cursor-pointer hover:bg-gray-50 hover:shadow"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
             إعادة تعيين
@@ -179,21 +178,21 @@ export default function App() {
         </div>
 
         {/* Speech Audiometry and Symptoms Tables */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="col-span-2 space-y-4">
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="col-span-2 space-y-2">
             <SpeechAudiometryTable
               data={formData.speechAudiometryData}
               onChange={(data) => setFormData({ ...formData, speechAudiometryData: data })}
             />
             {/* Tympanometry Notes */}
             <div className="border border-gray-800">
-              <div className="flex items-center pr-2 border-b border-gray-400 h-29">
-                <label className="text-sm font-bold">TYMPANOMETRY:</label>
+              <div className="flex items-center pr-2 py-1">
+                <label className="text-xs font-bold">TYMPANOMETRY:</label>
                 <textarea
                   value={formData.tympanometryNotes}
                   onChange={(e) => setFormData({ ...formData, tympanometryNotes: e.target.value })}
-                  className="flex-1 pr-2 ml-2 text-sm bg-transparent border-none resize-none focus:outline-none focus:ring-1 focus:ring-blue-400"
-                  rows={3}
+                  className="flex-1 pr-2 ml-2 text-xs bg-transparent border-none resize-none focus:outline-none focus:ring-1 focus:ring-blue-400"
+                  rows={1}
                   placeholder="ملاحظات القياس الطبي"
                 />
               </div>
@@ -208,21 +207,28 @@ export default function App() {
         </div>
 
         {/* Audiometry Notes */}
-        <div className="mb-6 border border-gray-800">
-          <div className="flex items-center px-3 py-1 border-b border-gray-400">
-            <label className="text-sm font-bold">AUDIOMETRY:</label>
+        <div className="mb-4 border border-gray-800">
+          <div className="flex items-center px-2 py-1">
+            <label className="text-xs font-bold">AUDIOMETRY:</label>
             <textarea
               value={formData.audiometryNotes}
               onChange={(e) => setFormData({ ...formData, audiometryNotes: e.target.value })}
-              className="flex-1 px-2 ml-2 text-sm bg-transparent border-none resize-none focus:outline-none focus:ring-1 focus:ring-blue-400"
-              rows={3}
+              className="flex-1 px-2 ml-2 text-xs bg-transparent border-none resize-none focus:outline-none focus:ring-1 focus:ring-blue-400"
+              rows={1}
               placeholder="ملاحظات قياس السمع"
             />
           </div>
         </div>
 
-        {/* Footer */}
-        <Footer doctorName={doctorName} />
+        {/* Footer with address */}
+        <div className="pt-3 mt-4 text-center border-t border-gray-400">
+          <p className="text-xs text-gray-700" dir="rtl">
+            الحدائق - مجمع نادي خالد بن الوليد - الدور الأول - مقابل مستشفى الصفوة وصيدلية شلوف
+          </p>
+          <p className="text-xs font-bold text-gray-800" dir="ltr">
+            091 657 7507 - 091 921 6936
+          </p>
+        </div>
       </div>
     </div>
   )

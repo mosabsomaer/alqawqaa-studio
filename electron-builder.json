@@ -7,8 +7,7 @@
     "buildResources": "resources"
   },
   "files": [
-    "dist/**/*",
-    "dist-electron/**/*",
+    "out/**/*",
     "resources/**/*"
   ],
   "win": {
@@ -20,6 +19,21 @@
     ],
     "icon": "resources/icon.png",
     "artifactName": "${productName}-${version}-Setup.${ext}"
+  },
+  "mac": {
+    "target": [
+      {
+        "target": "dmg",
+        "arch": ["arm64", "x64"]
+      }
+    ],
+    "icon": "resources/icon.png",
+    "category": "public.app-category.medical",
+    "artifactName": "${productName}-${version}-${arch}.${ext}"
+  },
+  "dmg": {
+    "title": "${productName} ${version}",
+    "icon": "resources/icon.png"
   },
   "nsis": {
     "oneClick": false,

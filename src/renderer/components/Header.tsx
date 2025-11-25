@@ -1,3 +1,5 @@
+import clinicLogo from '../../../resources/clinic-logo.png'
+
 interface HeaderProps {
   formData: {
     patientName: string
@@ -84,7 +86,7 @@ export default function Header({ formData, setFormData }: HeaderProps) {
         {/* Logo Section (Left in RTL) */}
         <div className="flex flex-col items-center ml-4" style={{ minWidth: '180px' }}>
           <img
-            src="/resources/clinic-logo.png"
+            src={clinicLogo}
             alt="Clinic Logo"
             className="object-contain h-16 mb-2"
             style={{ maxWidth: '180px' }}

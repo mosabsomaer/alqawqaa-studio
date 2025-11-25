@@ -92,10 +92,17 @@
 @media print {
   @page {
     size: A4 portrait;
-    margin: 10mm;
+    margin: 0;
   }
+/* 
+  * {
+    margin: 2;
+    padding: 2;
+  } */
 
-  body {
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
@@ -108,6 +115,11 @@
   /* Ensure form fits on one page */
   .form-container {
     page-break-inside: avoid;
+    margin: 0 !important;
+    padding: 10mm !important;
+    box-shadow: none !important;
+    width: 210mm !important;
+    min-height: 297mm !important;
   }
 
   /* Remove input borders when printing */

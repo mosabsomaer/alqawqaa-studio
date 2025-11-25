@@ -1,4 +1,4 @@
-import { Circle, Group, Line, Path, Rect, Text } from 'react-konva'
+import { Circle, Group, Line, Rect, Text } from 'react-konva'
 import type { SymbolType } from './AudiometryToolbar'
 
 interface AudiometrySymbolProps {
@@ -44,163 +44,154 @@ export default function AudiometrySymbol({
     onDragEnd: handleDragEnd,
   }
 
-  // Air Conduction - Right Unmasked (O)
-  if (symbolType === 'ac-right-unmasked') {
-    return (
-      <Group {...commonProps}>
-        <Circle radius={size} stroke={color} strokeWidth={2} fill="transparent" />
-        {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
-      </Group>
-    )
-  }
+  switch (symbolType) {
+    // Air Conduction - Right Unmasked (O)
+    case 'ac-right-unmasked':
+      return (
+        <Group {...commonProps}>
+          <Circle radius={size} stroke={color} strokeWidth={2} fill="transparent" />
+          {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
+        </Group>
+      )
 
-  // Air Conduction - Right Masked (Δ)
-  if (symbolType === 'ac-right-masked') {
-    return (
-      <Group {...commonProps}>
-        <Line
-          points={[0, -size, -size, size, size, size, 0, -size]}
-          stroke={color}
-          strokeWidth={2}
-          closed
-          fill="transparent"
-        />
-        {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
-      </Group>
-    )
-  }
+    // Air Conduction - Right Masked (Δ)
+    case 'ac-right-masked':
+      return (
+        <Group {...commonProps}>
+          <Line
+            points={[0, -size, -size, size, size, size, 0, -size]}
+            stroke={color}
+            strokeWidth={2}
+            closed
+            fill="transparent"
+          />
+          {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
+        </Group>
+      )
 
-  // Air Conduction - Left Unmasked (X)
-  if (symbolType === 'ac-left-unmasked') {
-    return (
-      <Group {...commonProps}>
-        <Line points={[-size, -size, size, size]} stroke={color} strokeWidth={2} />
-        <Line points={[-size, size, size, -size]} stroke={color} strokeWidth={2} />
-        {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
-      </Group>
-    )
-  }
+    // Air Conduction - Left Unmasked (X)
+    case 'ac-left-unmasked':
+      return (
+        <Group {...commonProps}>
+          <Line points={[-size, -size, size, size]} stroke={color} strokeWidth={2} />
+          <Line points={[-size, size, size, -size]} stroke={color} strokeWidth={2} />
+          {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
+        </Group>
+      )
 
-  // Air Conduction - Left Masked (□)
-  if (symbolType === 'ac-left-masked') {
-    return (
-      <Group {...commonProps}>
-        <Rect
-          x={-size}
-          y={-size}
-          width={size * 2}
-          height={size * 2}
-          stroke={color}
-          strokeWidth={2}
-          fill="transparent"
-        />
-        {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
-      </Group>
-    )
-  }
+    // Air Conduction - Left Masked (□)
+    case 'ac-left-masked':
+      return (
+        <Group {...commonProps}>
+          <Rect
+            x={-size}
+            y={-size}
+            width={size * 2}
+            height={size * 2}
+            stroke={color}
+            strokeWidth={2}
+            fill="transparent"
+          />
+          {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
+        </Group>
+      )
 
-  // Bone Conduction - Right Unmasked (<)
-  if (symbolType === 'bc-right-unmasked') {
-    return (
-      <Group {...commonProps}>
-        <Line points={[size, -size, -size, 0, size, size]} stroke={color} strokeWidth={2} />
-        {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
-      </Group>
-    )
-  }
+    // Bone Conduction - Right Unmasked (<)
+    case 'bc-right-unmasked':
+      return (
+        <Group {...commonProps}>
+          <Line points={[size, -size, -size, 0, size, size]} stroke={color} strokeWidth={2} />
+          {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
+        </Group>
+      )
 
-  // Bone Conduction - Right Masked ([)
-  if (symbolType === 'bc-right-masked') {
-    return (
-      <Group {...commonProps}>
-        <Line points={[-size, -size, -size, size]} stroke={color} strokeWidth={2} />
-        <Line points={[-size, -size, -size + 4, -size]} stroke={color} strokeWidth={2} />
-        <Line points={[-size, size, -size + 4, size]} stroke={color} strokeWidth={2} />
-        {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
-      </Group>
-    )
-  }
+    // Bone Conduction - Right Masked ([)
+    case 'bc-right-masked':
+      return (
+        <Group {...commonProps}>
+          <Line points={[-size, -size, -size, size]} stroke={color} strokeWidth={2} />
+          <Line points={[-size, -size, -size + 4, -size]} stroke={color} strokeWidth={2} />
+          <Line points={[-size, size, -size + 4, size]} stroke={color} strokeWidth={2} />
+          {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
+        </Group>
+      )
 
-  // Bone Conduction - Left Unmasked (>)
-  if (symbolType === 'bc-left-unmasked') {
-    return (
-      <Group {...commonProps}>
-        <Line points={[-size, -size, size, 0, -size, size]} stroke={color} strokeWidth={2} />
-        {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
-      </Group>
-    )
-  }
+    // Bone Conduction - Left Unmasked (>)
+    case 'bc-left-unmasked':
+      return (
+        <Group {...commonProps}>
+          <Line points={[-size, -size, size, 0, -size, size]} stroke={color} strokeWidth={2} />
+          {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
+        </Group>
+      )
 
-  // Bone Conduction - Left Masked (])
-  if (symbolType === 'bc-left-masked') {
-    return (
-      <Group {...commonProps}>
-        <Line points={[size, -size, size, size]} stroke={color} strokeWidth={2} />
-        <Line points={[size, -size, size - 4, -size]} stroke={color} strokeWidth={2} />
-        <Line points={[size, size, size - 4, size]} stroke={color} strokeWidth={2} />
-        {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
-      </Group>
-    )
-  }
+    // Bone Conduction - Left Masked (])
+    case 'bc-left-masked':
+      return (
+        <Group {...commonProps}>
+          <Line points={[size, -size, size, size]} stroke={color} strokeWidth={2} />
+          <Line points={[size, -size, size - 4, -size]} stroke={color} strokeWidth={2} />
+          <Line points={[size, size, size - 4, size]} stroke={color} strokeWidth={2} />
+          {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
+        </Group>
+      )
 
-  // No Response - Right (O↓)
-  if (symbolType === 'nr-right') {
-    return (
-      <Group {...commonProps}>
-        <Circle radius={size} stroke={color} strokeWidth={2} fill="transparent" />
-        <Line points={[0, size + 2, 0, size + 10]} stroke={color} strokeWidth={2} />
-        <Line points={[-3, size + 7, 0, size + 10, 3, size + 7]} stroke={color} strokeWidth={2} />
-        {isSelected && <Circle radius={size + 8} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
-      </Group>
-    )
-  }
+    // No Response - Right (O↓)
+    case 'nr-right':
+      return (
+        <Group {...commonProps}>
+          <Circle radius={size} stroke={color} strokeWidth={2} fill="transparent" />
+          <Line points={[0, size + 2, 0, size + 10]} stroke={color} strokeWidth={2} />
+          <Line points={[-3, size + 7, 0, size + 10, 3, size + 7]} stroke={color} strokeWidth={2} />
+          {isSelected && <Circle radius={size + 8} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
+        </Group>
+      )
 
-  // No Response - Left (X↓)
-  if (symbolType === 'nr-left') {
-    return (
-      <Group {...commonProps}>
-        <Line points={[-size, -size, size, size]} stroke={color} strokeWidth={2} />
-        <Line points={[-size, size, size, -size]} stroke={color} strokeWidth={2} />
-        <Line points={[0, size + 2, 0, size + 10]} stroke={color} strokeWidth={2} />
-        <Line points={[-3, size + 7, 0, size + 10, 3, size + 7]} stroke={color} strokeWidth={2} />
-        {isSelected && <Circle radius={size + 8} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
-      </Group>
-    )
-  }
+    // No Response - Left (X↓)
+    case 'nr-left':
+      return (
+        <Group {...commonProps}>
+          <Line points={[-size, -size, size, size]} stroke={color} strokeWidth={2} />
+          <Line points={[-size, size, size, -size]} stroke={color} strokeWidth={2} />
+          <Line points={[0, size + 2, 0, size + 10]} stroke={color} strokeWidth={2} />
+          <Line points={[-3, size + 7, 0, size + 10, 3, size + 7]} stroke={color} strokeWidth={2} />
+          {isSelected && <Circle radius={size + 8} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
+        </Group>
+      )
 
-  // Aided (A)
-  if (symbolType === 'aided') {
-    return (
-      <Group {...commonProps}>
-        <Text
-          text="A"
-          fontSize={16}
-          fontStyle="bold"
-          fill={color}
-          offsetX={5}
-          offsetY={8}
-        />
-        {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
-      </Group>
-    )
-  }
+    // Aided (A)
+    case 'aided':
+      return (
+        <Group {...commonProps}>
+          <Text
+            text="A"
+            fontSize={16}
+            fontStyle="bold"
+            fill={color}
+            offsetX={5}
+            offsetY={8}
+          />
+          {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
+        </Group>
+      )
 
-  // Sound Field (S)
-  if (symbolType === 'sound-field') {
-    return (
-      <Group {...commonProps}>
-        <Text
-          text="S"
-          fontSize={16}
-          fontStyle="bold"
-          fill={color}
-          offsetX={5}
-          offsetY={8}
-        />
-        {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
-      </Group>
-    )
-  }
+    // Sound Field (S)
+    case 'sound-field':
+      return (
+        <Group {...commonProps}>
+          <Text
+            text="S"
+            fontSize={16}
+            fontStyle="bold"
+            fill={color}
+            offsetX={5}
+            offsetY={8}
+          />
+          {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
+        </Group>
+      )
 
-  return null
+    default:
+      return null
+  }
 }
