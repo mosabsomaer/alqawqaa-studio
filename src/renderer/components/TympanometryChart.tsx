@@ -18,6 +18,14 @@ export default function TympanometryChart({ title, data, onChange }: Tympanometr
   const [points, setPoints] = useState<BezierPoint[]>([])
   const [selectedPointIndex, setSelectedPointIndex] = useState<number | null>(null)
 
+  // Clear selection before printing so control handles don't show
+  useEffect(() => {
+    const handleBeforePrint = () => setSelectedPointIndex(null)
+
+    window.addEventListener('beforeprint', handleBeforePrint)
+    return () => window.removeEventListener('beforeprint', handleBeforePrint)
+  }, [])
+
   // Load data from prop
   useEffect(() => {
     if (data === '') {
@@ -34,11 +42,11 @@ export default function TympanometryChart({ title, data, onChange }: Tympanometr
   }, [data])
 
   const width = 320
-  const height = 200
+  const height = 160
   const marginLeft = 40
-  const marginTop = 20
+  const marginTop = 15
   const marginRight = 40
-  const marginBottom = 30
+  const marginBottom = 25
 
   const chartWidth = width - marginLeft - marginRight
   const chartHeight = height - marginTop - marginBottom
@@ -197,11 +205,6 @@ export default function TympanometryChart({ title, data, onChange }: Tympanometr
 
   return (
     <div className="border border-gray-400">
-      {/* Title */}
-      <div className="py-1 text-sm font-bold text-center border-b border-gray-400 bg-gray-50">
-        {title}
-      </div>
-
       {/* Chart */}
       <div className="relative bg-white cursor-crosshair">
         <Stage width={width} height={height} onClick={handleStageClick}>
@@ -254,12 +257,22 @@ export default function TympanometryChart({ title, data, onChange }: Tympanometr
               />
             ))}
 
-            {/* ML ML label on right */}
+            {/* ML label on right */}
             <Text
               x={marginLeft + chartWidth + 5}
-              y={marginTop - 15}
-              text="ML ML"
+              y={marginTop - 12}
+              text="ML"
               fontSize={8}
+              fontStyle="bold"
+              fill="black"
+            />
+
+            {/* Title in top-left corner */}
+            <Text
+              x={5}
+              y={3}
+              text={title}
+              fontSize={11}
               fontStyle="bold"
               fill="black"
             />
@@ -274,7 +287,7 @@ export default function TympanometryChart({ title, data, onChange }: Tympanometr
                   const cp2 = p.handleIn || { x: p.x, y: p.y }
                   return [cp1.x, cp1.y, cp2.x, cp2.y, p.x, p.y]
                 })}
-                stroke="black"
+                stroke={title === "RT" ? '#EF4444' : '#3B82F6'}
                 strokeWidth={2}
                 bezier={true}
                 lineCap="round"
@@ -282,7 +295,7 @@ export default function TympanometryChart({ title, data, onChange }: Tympanometr
               />
             )}
 
-            {/* Draw control handles for selected point */}
+            {/* Draw control handles for selected point (cleared before printing) */}
             {selectedPointIndex !== null && points[selectedPointIndex] && (
               <>
                 {/* Handle In */}

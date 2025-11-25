@@ -29,11 +29,11 @@ export default function AudiogramChart({ title, data, onChange, selectedSymbol, 
   const dbLevels = Array.from({ length: 14 }, (_, i) => -10 + i * 10) // -10 to 120
 
   const width = 370
-  const height = 300
-  const marginLeft = 50
-  const marginTop = 30
-  const marginRight = 30
-  const marginBottom = 30
+  const height = 260
+  const marginLeft = 35
+  const marginTop = 20
+  const marginRight = 35
+  const marginBottom = 25
 
   const chartWidth = width - marginLeft - marginRight
   const chartHeight = height - marginTop - marginBottom
@@ -235,11 +235,6 @@ export default function AudiogramChart({ title, data, onChange, selectedSymbol, 
 
   return (
     <div className="border border-gray-400 cursor-crosshair">
-      {/* Title */}
-      <div className="py-1 text-sm font-bold text-center border-b border-gray-400 bg-gray-50">
-        {title}
-      </div>
-
       {/* Chart */}
       <div className="relative">
         <Stage
@@ -285,36 +280,44 @@ export default function AudiogramChart({ title, data, onChange, selectedSymbol, 
               />
             ))}
 
-            {/* Y-axis labels (dB levels) */}
+            {/* Y-axis labels (dB levels) - on RIGHT side */}
             {dbLevels.filter((_, i) => i % 2 === 0).map((db) => (
               <Text
                 key={`yl-${db}`}
-                x={5}
+                x={width - marginRight + 5}
                 y={getY(db) - 6}
                 text={db.toString()}
-                fontSize={9}
+                fontSize={8}
                 fill="black"
-                align="right"
-                width={35}
               />
             ))}
 
             {/* X-axis title */}
             <Text
               x={width / 2 - 15}
-              y={height - 13}
+              y={height - 10}
               text="KHz"
-              fontSize={10}
+              fontSize={9}
               fontStyle="bold"
               fill="black"
             />
 
-            {/* Y-axis title */}
+            {/* Y-axis title (dB) - on RIGHT side */}
             <Text
-              x={30}
-              y={2}
+              x={width - marginRight + 5}
+              y={3}
               text="dB"
-              fontSize={10}
+              fontSize={9}
+              fontStyle="bold"
+              fill="black"
+            />
+
+            {/* Title in top-left corner */}
+            <Text
+              x={5}
+              y={3}
+              text={title}
+              fontSize={12}
               fontStyle="bold"
               fill="black"
             />

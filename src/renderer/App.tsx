@@ -75,7 +75,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen p-4 bg-gray-100">
+    <div className="p-2 bg-gray-100 ">
       {/* Toolbar - Hidden when printing */}
       <div className="mb-4 no-print">
 
@@ -131,11 +131,11 @@ export default function App() {
       {/* A4 Form Container */}
       <div
         className="mx-auto bg-white shadow-lg form-container"
-        style={{
-          width: '210mm',
-          minHeight: '297mm',
-          padding: '10mm',
-        }}
+  style={{
+    width: "210mm",
+    height: "280mm",
+    padding: "5mm",
+  }}
       >
         <Header formData={formData} setFormData={setFormData} />
 
@@ -186,7 +186,7 @@ export default function App() {
             />
             {/* Tympanometry Notes */}
             <div className="border border-gray-800">
-              <div className="flex items-center pr-2 py-1">
+              <div className="flex items-center py-1 pr-2">
                 <label className="text-xs font-bold">TYMPANOMETRY:</label>
                 <textarea
                   value={formData.tympanometryNotes}
@@ -221,7 +221,7 @@ export default function App() {
         </div>
 
         {/* Footer with address */}
-        <div className="pt-3 mt-4 text-center border-t border-gray-400">
+        <div className="mt-3 text-center border-gray-400">
           <p className="text-xs text-gray-700" dir="rtl">
             الحدائق - مجمع نادي خالد بن الوليد - الدور الأول - مقابل مستشفى الصفوة وصيدلية شلوف
           </p>
