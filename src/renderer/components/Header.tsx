@@ -88,8 +88,8 @@ export default function Header({ formData, setFormData }: HeaderProps) {
           <img
             src={clinicLogo}
             alt="Clinic Logo"
-            className="object-contain h-16 mb-2"
-            style={{ maxWidth: '180px' }}
+            className="object-contain mb-2 h-25"
+            style={{ maxWidth: '200px' }}
             onError={(e) => {
               // Fallback if image not found
               e.currentTarget.style.display = 'none'

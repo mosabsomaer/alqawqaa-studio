@@ -94,17 +94,16 @@
     size: A4 portrait;
     margin: 0;
   }
-/* 
-  * {
-    margin: 2;
-    padding: 2;
-  } */
 
   html, body {
     margin: 0 !important;
     padding: 0 !important;
+    background: white !important;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
+    overflow: hidden !important;
+    height: 297mm !important;
+    max-height: 297mm !important;
   }
 
   /* Hide print button and non-printable elements */
@@ -112,14 +111,27 @@
     display: none !important;
   }
 
+  /* Hide the outer wrapper background/padding */
+  body > div > div:first-child {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: white !important;
+    height: 297mm !important;
+    max-height: 297mm !important;
+    overflow: hidden !important;
+  }
+
   /* Ensure form fits on one page */
   .form-container {
     page-break-inside: avoid;
+    page-break-after: avoid;
     margin: 0 !important;
-    padding: 10mm !important;
+    padding: 5mm !important;
     box-shadow: none !important;
     width: 210mm !important;
-    min-height: 297mm !important;
+    height: 297mm !important;
+    max-height: 297mm !important;
+    overflow: hidden !important;
   }
 
   /* Remove input borders when printing */

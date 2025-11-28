@@ -28,6 +28,7 @@ export default function AudiometrySymbol({
 }: AudiometrySymbolProps) {
   const color = getSymbolColor(symbolType)
   const size = 8
+  const hitAreaSize = 12 // Larger hit area for easier clicking
 
   const handleDragEnd = (e: any) => {
     if (onDragEnd) {
@@ -35,11 +36,19 @@ export default function AudiometrySymbol({
     }
   }
 
+  const handleClick = (e: any) => {
+    // Stop propagation to prevent stage click from firing
+    e.cancelBubble = true
+    if (onClick) {
+      onClick()
+    }
+  }
+
   const commonProps = {
     x,
     y,
-    onClick,
-    onTap: onClick,
+    onClick: handleClick,
+    onTap: handleClick,
     draggable: true,
     onDragEnd: handleDragEnd,
   }
@@ -49,6 +58,8 @@ export default function AudiometrySymbol({
     case 'ac-right-unmasked':
       return (
         <Group {...commonProps}>
+          {/* Invisible hit area for easier clicking */}
+          <Rect x={-hitAreaSize} y={-hitAreaSize} width={hitAreaSize * 2} height={hitAreaSize * 2} fill="transparent" />
           <Circle radius={size} stroke={color} strokeWidth={2} fill="transparent" />
           {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
         </Group>
@@ -58,6 +69,7 @@ export default function AudiometrySymbol({
     case 'ac-right-masked':
       return (
         <Group {...commonProps}>
+          <Rect x={-hitAreaSize} y={-hitAreaSize} width={hitAreaSize * 2} height={hitAreaSize * 2} fill="transparent" />
           <Line
             points={[0, -size, -size, size, size, size, 0, -size]}
             stroke={color}
@@ -73,6 +85,7 @@ export default function AudiometrySymbol({
     case 'ac-left-unmasked':
       return (
         <Group {...commonProps}>
+          <Rect x={-hitAreaSize} y={-hitAreaSize} width={hitAreaSize * 2} height={hitAreaSize * 2} fill="transparent" />
           <Line points={[-size, -size, size, size]} stroke={color} strokeWidth={2} />
           <Line points={[-size, size, size, -size]} stroke={color} strokeWidth={2} />
           {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
@@ -83,6 +96,7 @@ export default function AudiometrySymbol({
     case 'ac-left-masked':
       return (
         <Group {...commonProps}>
+          <Rect x={-hitAreaSize} y={-hitAreaSize} width={hitAreaSize * 2} height={hitAreaSize * 2} fill="transparent" />
           <Rect
             x={-size}
             y={-size}
@@ -100,6 +114,7 @@ export default function AudiometrySymbol({
     case 'bc-right-unmasked':
       return (
         <Group {...commonProps}>
+          <Rect x={-hitAreaSize} y={-hitAreaSize} width={hitAreaSize * 2} height={hitAreaSize * 2} fill="transparent" />
           <Line points={[size, -size, -size, 0, size, size]} stroke={color} strokeWidth={2} />
           {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
         </Group>
@@ -109,6 +124,7 @@ export default function AudiometrySymbol({
     case 'bc-right-masked':
       return (
         <Group {...commonProps}>
+          <Rect x={-hitAreaSize} y={-hitAreaSize} width={hitAreaSize * 2} height={hitAreaSize * 2} fill="transparent" />
           <Line points={[-size, -size, -size, size]} stroke={color} strokeWidth={2} />
           <Line points={[-size, -size, -size + 4, -size]} stroke={color} strokeWidth={2} />
           <Line points={[-size, size, -size + 4, size]} stroke={color} strokeWidth={2} />
@@ -120,6 +136,7 @@ export default function AudiometrySymbol({
     case 'bc-left-unmasked':
       return (
         <Group {...commonProps}>
+          <Rect x={-hitAreaSize} y={-hitAreaSize} width={hitAreaSize * 2} height={hitAreaSize * 2} fill="transparent" />
           <Line points={[-size, -size, size, 0, -size, size]} stroke={color} strokeWidth={2} />
           {isSelected && <Circle radius={size + 3} stroke="#000" strokeWidth={1} dash={[3, 3]} />}
         </Group>
@@ -129,6 +146,7 @@ export default function AudiometrySymbol({
     case 'bc-left-masked':
       return (
         <Group {...commonProps}>
+          <Rect x={-hitAreaSize} y={-hitAreaSize} width={hitAreaSize * 2} height={hitAreaSize * 2} fill="transparent" />
           <Line points={[size, -size, size, size]} stroke={color} strokeWidth={2} />
           <Line points={[size, -size, size - 4, -size]} stroke={color} strokeWidth={2} />
           <Line points={[size, size, size - 4, size]} stroke={color} strokeWidth={2} />
@@ -140,6 +158,7 @@ export default function AudiometrySymbol({
     case 'nr-right':
       return (
         <Group {...commonProps}>
+          <Rect x={-hitAreaSize} y={-hitAreaSize} width={hitAreaSize * 2} height={hitAreaSize * 2 + 10} fill="transparent" />
           <Circle radius={size} stroke={color} strokeWidth={2} fill="transparent" />
           <Line points={[0, size + 2, 0, size + 10]} stroke={color} strokeWidth={2} />
           <Line points={[-3, size + 7, 0, size + 10, 3, size + 7]} stroke={color} strokeWidth={2} />
@@ -151,6 +170,7 @@ export default function AudiometrySymbol({
     case 'nr-left':
       return (
         <Group {...commonProps}>
+          <Rect x={-hitAreaSize} y={-hitAreaSize} width={hitAreaSize * 2} height={hitAreaSize * 2 + 10} fill="transparent" />
           <Line points={[-size, -size, size, size]} stroke={color} strokeWidth={2} />
           <Line points={[-size, size, size, -size]} stroke={color} strokeWidth={2} />
           <Line points={[0, size + 2, 0, size + 10]} stroke={color} strokeWidth={2} />
@@ -163,6 +183,7 @@ export default function AudiometrySymbol({
     case 'aided':
       return (
         <Group {...commonProps}>
+          <Rect x={-hitAreaSize} y={-hitAreaSize} width={hitAreaSize * 2} height={hitAreaSize * 2} fill="transparent" />
           <Text
             text="A"
             fontSize={16}
@@ -179,6 +200,7 @@ export default function AudiometrySymbol({
     case 'sound-field':
       return (
         <Group {...commonProps}>
+          <Rect x={-hitAreaSize} y={-hitAreaSize} width={hitAreaSize * 2} height={hitAreaSize * 2} fill="transparent" />
           <Text
             text="S"
             fontSize={16}

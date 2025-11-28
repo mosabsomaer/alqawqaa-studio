@@ -56,8 +56,13 @@ ipcMain.handle('print-form', async () => {
       silent: false,
       printBackground: true,
       margins: {
-        marginType: 'printableArea',
+        marginType: 'custom',
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
       },
+      pageRanges: [{ from: 0, to: 0 }], // Print only the first page
     })
     return { success: true }
   } catch (error) {
