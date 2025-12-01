@@ -31,18 +31,16 @@ export default function Header({ formData, setFormData }: HeaderProps) {
                 value={formData.patientName}
                 onChange={(e) => handleChange('patientName', e.target.value)}
                 className="flex-1 px-1 text-right bg-transparent border-b border-gray-400 focus:border-blue-500 focus:outline-none"
-                placeholder="اسم المريض"
               />
             </div>
 
             <div className="flex items-center gap-2">
               <label className="font-bold">العمر:</label>
               <input
-                type="text"
+                type="number"
                 value={formData.age}
                 onChange={(e) => handleChange('age', e.target.value)}
                 className="w-16 px-1 text-right bg-transparent border-b border-gray-400 focus:border-blue-500 focus:outline-none"
-                placeholder="العمر"
               />
             </div>
 
@@ -66,7 +64,6 @@ export default function Header({ formData, setFormData }: HeaderProps) {
                 value={formData.doctor}
                 onChange={(e) => handleChange('doctor', e.target.value)}
                 className="flex-1 px-1 text-right bg-transparent border-b border-gray-400 focus:border-blue-500 focus:outline-none"
-                placeholder="اسم الطبيب"
               />
             </div>
 
@@ -77,7 +74,6 @@ export default function Header({ formData, setFormData }: HeaderProps) {
                 value={formData.referredFrom}
                 onChange={(e) => handleChange('referredFrom', e.target.value)}
                 className="flex-1 px-1 text-right bg-transparent border-b border-gray-400 focus:border-blue-500 focus:outline-none"
-                placeholder="الجهة المحولة"
               />
             </div>
           </div>

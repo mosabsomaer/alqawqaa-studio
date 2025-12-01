@@ -259,8 +259,8 @@ export default function TympanometryChart({ title, data, onChange }: Tympanometr
 
             {/* ML label on right */}
             <Text
-              x={marginLeft + chartWidth + 5}
-              y={marginTop - 12}
+              x={marginLeft + chartWidth + 3}
+              y={marginTop - 15}
               text="ML"
               fontSize={8}
               fontStyle="bold"

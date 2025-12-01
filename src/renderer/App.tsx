@@ -37,7 +37,7 @@ export default function App() {
     age: '',
     date: new Date().toISOString().split('T')[0],
     doctor: doctorName,
-    referredFrom: '',
+    referredFrom: 'د. ',
     rightAudiogramData: '',
     leftAudiogramData: '',
     rightTympData: '',
@@ -140,8 +140,8 @@ export default function App() {
         <Header formData={formData} setFormData={setFormData} />
 
         {/* Audiometry Charts Section */}
-        <div className="mt-6 mb-6">
-          <h2 className="mb-3 text-lg font-bold text-center">وكيل فوناك السويسرية</h2>
+        <div className="mb-4">
+          <h1 className="mb-1 text-base font-bold text-center">Audiometry</h1>
           <div className="grid grid-cols-2 gap-4">
             <AudiogramChart
               title="RIGHT"
@@ -162,7 +162,7 @@ export default function App() {
 
         {/* Tympanometry Charts Section */}
         <div className="mb-6">
-          <h2 className="mb-3 text-base font-bold text-center">TYMPANOMETRY</h2>
+          <h2 className="mb-1 text-base font-bold text-center">Tympanometry</h2>
           <div className="grid grid-cols-2 gap-4">
             <TympanometryChart
               title="RT"
@@ -186,13 +186,13 @@ export default function App() {
             />
             {/* Tympanometry Notes */}
             <div className="border border-gray-800">
-              <div className="flex items-center py-1 pr-2">
+              <div className="flex p-2">
                 <label className="text-xs font-bold">TYMPANOMETRY:</label>
                 <textarea
                   value={formData.tympanometryNotes}
                   onChange={(e) => setFormData({ ...formData, tympanometryNotes: e.target.value })}
                   className="flex-1 pr-2 ml-2 text-xs bg-transparent border-none resize-none focus:outline-none focus:ring-1 focus:ring-blue-400"
-                  rows={1}
+                  rows={4}
                   placeholder="ملاحظات القياس الطبي"
                 />
               </div>
@@ -208,13 +208,13 @@ export default function App() {
 
         {/* Audiometry Notes */}
         <div className="mb-4 border border-gray-800">
-          <div className="flex items-center px-2 py-1">
+          <div className="flex p-2">
             <label className="text-xs font-bold">AUDIOMETRY:</label>
             <textarea
               value={formData.audiometryNotes}
               onChange={(e) => setFormData({ ...formData, audiometryNotes: e.target.value })}
               className="flex-1 px-2 ml-2 text-xs bg-transparent border-none resize-none focus:outline-none focus:ring-1 focus:ring-blue-400"
-              rows={1}
+              rows={4}
               placeholder="ملاحظات قياس السمع"
             />
           </div>
