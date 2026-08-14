@@ -27,7 +27,7 @@ export default function AudiometrySymbol({
   onDragEnd,
 }: AudiometrySymbolProps) {
   const color = getSymbolColor(symbolType)
-  const size = 8
+  const size = 6
   const hitAreaSize = 12 // Larger hit area for easier clicking
 
   const handleDragEnd = (e: any) => {

@@ -17,7 +17,7 @@ export default function Header({ formData, setFormData }: HeaderProps) {
   }
 
   return (
-    <div className="pb-4 mb-6 border-b-2 border-black">
+    <div className="pb-2 mb-2 border-b-2 border-black">
       {/* Top row: Logo and Patient Info */}
       <div className="flex items-start justify-between">
         {/* Patient Info Section (Right in RTL) */}
@@ -84,7 +84,7 @@ export default function Header({ formData, setFormData }: HeaderProps) {
           <img
             src={clinicLogo}
             alt="Clinic Logo"
-            className="object-contain mb-2 h-25"
+            className="object-contain h-20 mb-0"
             style={{ maxWidth: '200px' }}
             onError={(e) => {
               // Fallback if image not found
