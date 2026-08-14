@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Circle, Layer, Line, Rect, Stage, Text } from 'react-konva'
+import { PLAIN_TYMP_AXIS, PLAIN_TYMP_PX } from '../plain/adapters'
 
 interface TympanometryChartProps {
   title: string
@@ -43,20 +44,16 @@ export default function TympanometryChart({ title, data, onChange }: Tympanometr
 
   const width = 320
   const height = 160
-  const marginLeft = 40
-  const marginTop = 15
+  const marginLeft = PLAIN_TYMP_PX.left
+  const marginTop = PLAIN_TYMP_PX.top
   const marginRight = 40
   const marginBottom = 25
 
-  const chartWidth = width - marginLeft - marginRight
-  const chartHeight = height - marginTop - marginBottom
+  const chartWidth = PLAIN_TYMP_PX.width
+  const chartHeight = PLAIN_TYMP_PX.height
 
-  // Pressure range: +300 to -300 daPa
-  const pressureMin = -300
-  const pressureMax = 300
-
-  // Compliance range: 0 to 5 ml
-  const complianceMax = 5
+  // Axis range is the printed sheet's, shared with the plain-mode adapters
+  const { pressureMin, pressureMax, complianceMin, complianceMax } = PLAIN_TYMP_AXIS
 
   const getX = (pressure: number) => {
     const normalized = (pressure - pressureMin) / (pressureMax - pressureMin)
@@ -64,9 +61,16 @@ export default function TympanometryChart({ title, data, onChange }: Tympanometr
   }
 
   const getY = (compliance: number) => {
-    const normalized = compliance / complianceMax
+    const normalized = (compliance - complianceMin) / (complianceMax - complianceMin)
     return marginTop + chartHeight - normalized * chartHeight
   }
+
+  // Anchors may not leave the plot box: a value off the top reads back as an
+  // old-format pixel curve and gets re-scaled into a flat line.
+  const anchorDragBound = (pos: { x: number; y: number }) => ({
+    x: Math.min(marginLeft + chartWidth, Math.max(marginLeft, pos.x)),
+    y: Math.min(marginTop + chartHeight, Math.max(marginTop, pos.y)),
+  })
 
   const handleStageClick = (e: any) => {
     // Check if clicked on background (not a point or handle)
@@ -180,7 +184,7 @@ export default function TympanometryChart({ title, data, onChange }: Tympanometr
   }
 
   // Pressure tick marks
-  const pressureTicks = [-300, -200, -100, 0, +100, +200, +300]
+  const pressureTicks = [-400, -300, -200, -100, 0, +100, +200, +300]
 
   // Compliance tick marks
   const complianceTicks = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
@@ -365,6 +369,7 @@ export default function TympanometryChart({ title, data, onChange }: Tympanometr
                 stroke="white"
                 strokeWidth={selectedPointIndex === i ? 2 : 1}
                 draggable
+                dragBoundFunc={anchorDragBound}
                 onClick={(e) => handlePointClick(i, e)}
                 onDragEnd={(e) => handlePointDragEnd(i, e)}
               />

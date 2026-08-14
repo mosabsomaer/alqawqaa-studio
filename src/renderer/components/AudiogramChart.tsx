@@ -42,8 +42,9 @@ export default function AudiogramChart({ title, data, onChange, selectedSymbol, 
   useEffect(() => {
     if (data && data !== '') {
       try {
-        const parsed = JSON.parse(data)
-        setSymbols(parsed)
+        const parsed: PlacedSymbol[] = JSON.parse(data)
+        // The shared store keeps freq/db only; x/y are this chart's own pixels.
+        setSymbols(parsed.map((sym) => ({ ...sym, x: getX(sym.freq), y: getY(sym.db) })))
       } catch (e) {
         console.error('Failed to parse audiogram data:', e)
       }

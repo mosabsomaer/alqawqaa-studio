@@ -1,0 +1,112 @@
+/*
+ * Sheet layers. The chrome layer is the printed template; the ink layer is what
+ * the doctor fills in. On pre-printed yellow stock the paper already carries the
+ * chrome, so only ink is sent to the printer.
+ */
+
+.sheet {
+  position: relative;
+  width: 210mm;
+  height: 297mm;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.sheet-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.template-chrome {
+  pointer-events: none;
+}
+
+/* Screen preview of the yellow stock, so placement is visible while filling in. */
+body[data-print-mode='preprinted'] .sheet {
+  background: #fbf6c8;
+}
+
+body[data-print-mode='preprinted'] .template-chrome {
+  opacity: 0.55;
+}
+
+/* Ink inputs sit transparently over the sheet and only show their glyphs. */
+.sheet [data-ink] {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  color: #10233f;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.sheet [data-ink]:focus {
+  outline: none;
+  box-shadow: none;
+  background: rgba(59, 130, 246, 0.09);
+}
+
+/* A faint guide under text fields, on screen only. */
+.sheet [data-ink].ink-underline {
+  border-bottom: 0.2mm solid rgba(100, 116, 139, 0.45);
+}
+
+@media print {
+  body[data-print-mode='preprinted'] .template-chrome {
+    display: none !important;
+  }
+
+  /* The stock is already yellow; painting our preview colour over it would
+     lay down a full page of ink. */
+  body[data-print-mode='preprinted'] .sheet {
+    background: transparent !important;
+  }
+
+  .sheet [data-ink],
+  .sheet [data-ink]:focus {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    color: #000 !important;
+  }
+
+  .sheet [data-ink].ink-underline {
+    border-bottom: none !important;
+  }
+
+  .sheet {
+    box-shadow: none !important;
+    margin: 0 !important;
+  }
+}
+
+/*
+ * Alignment test: the target rides the ink transform, so what comes out is where
+ * the current calibration puts ink. Nothing else prints, patient data included.
+ */
+.alignment-layer {
+  display: none;
+}
+
+body[data-alignment-test='on'] .alignment-layer {
+  display: block;
+}
+
+body[data-alignment-test='on'] .template-ink,
+body[data-alignment-test='on'] .template-chrome {
+  display: none !important;
+}
+
+@media print {
+  body[data-alignment-test='on'] .alignment-layer {
+    display: block !important;
+  }
+
+  body[data-alignment-test='on'] .template-ink,
+  body[data-alignment-test='on'] .template-chrome {
+    display: none !important;
+  }
+}
