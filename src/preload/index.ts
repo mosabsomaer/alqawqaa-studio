@@ -4,7 +4,9 @@ import type { IpcRendererEvent } from 'electron'
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld('electronAPI', {
-  printForm: (options?: { mode?: 'plain' | 'preprinted' }) => ipcRenderer.invoke('print-form', options),
+  printForm: (options?: { mode?: 'plain' | 'preprinted'; deviceName?: string; showDialog?: boolean }) =>
+    ipcRenderer.invoke('print-form', options),
+  getPrinters: () => ipcRenderer.invoke('get-printers'),
   saveFormData: (formData: any) => ipcRenderer.invoke('save-form-data', formData),
   loadFormData: (formId: string) => ipcRenderer.invoke('load-form-data', formId),
   importMaicoPdf: () => ipcRenderer.invoke('maico:importPdf'),

@@ -1,12 +1,29 @@
 import { useEffect, useRef, useState } from 'react'
 import AudiometryToolbar, { type SymbolType } from './components/AudiometryToolbar'
+import DoctorNameInput from './components/DoctorNameInput'
+import SplitButton from './components/SplitButton'
 import { toSheetValue, toStored } from './formMigration'
 import PlainForm from './plain/PlainForm'
 import CalibrationPanel from './print/CalibrationPanel'
 import FormSheet, { type SheetValue } from './print/FormSheet'
+import PrinterSelect from './print/PrinterSelect'
 import PrintModeSwitch from './print/PrintModeSwitch'
 import { migrateSymbols, type PlacedSymbol, serializeSymbols } from './print/panels/AudiogramPanel'
 import { usePrintMode } from './print/usePrintMode'
+
+const PRINTER_KEY = 'alqawqaa.printer'
+const DOCTOR_KEY = 'alqawqaa.doctorName'
+const DOCTOR_RECENTS_KEY = 'alqawqaa.doctorRecents'
+const MAX_RECENT_DOCTORS = 8
+
+function readRecentDoctors(): string[] {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(DOCTOR_RECENTS_KEY) ?? '[]')
+    return Array.isArray(parsed) ? parsed.filter(n => typeof n === 'string') : []
+  } catch {
+    return []
+  }
+}
 
 interface ImportedSymbol {
   freq: number
@@ -42,13 +59,51 @@ function importedToSheet(symbols: ImportedSymbol[]): string {
 }
 
 export default function App() {
-  // Store doctor name separately (persistent across resets)
-  const [doctorName, setDoctorName] = useState('د. ')
+  // Store doctor name separately (persistent across resets and restarts)
+  const [doctorName, setDoctorName] = useState(() => localStorage.getItem(DOCTOR_KEY) || 'د. ')
+  const [recentDoctors, setRecentDoctors] = useState<string[]>(readRecentDoctors)
 
   // Audiometry symbol selection state
   const [selectedSymbol, setSelectedSymbol] = useState<SymbolType>('ac-right-unmasked')
 
   const { mode, setMode, calibration, setCalibration, resetCalibration } = usePrintMode()
+
+  // Like calibration, the chosen printer belongs to the machine, not the record.
+  const [printerName, setPrinterName] = useState(() => localStorage.getItem(PRINTER_KEY) || '')
+  const [printStatus, setPrintStatus] = useState<
+    { state: 'printing' } | { state: 'done' } | { state: 'error'; message: string } | null
+  >(null)
+  const printToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const handlePrinterChange = (name: string) => {
+    setPrinterName(name)
+    localStorage.setItem(PRINTER_KEY, name)
+  }
+
+  const handleDoctorChange = (name: string) => {
+    setDoctorName(name)
+    localStorage.setItem(DOCTOR_KEY, name)
+    patch({ doctor: name })
+  }
+
+  const removeRecentDoctor = (name: string) => {
+    setRecentDoctors(prev => {
+      const next = prev.filter(n => n !== name)
+      localStorage.setItem(DOCTOR_RECENTS_KEY, JSON.stringify(next))
+      return next
+    })
+  }
+
+  const rememberDoctor = (name: string) => {
+    const trimmed = name.trim()
+    // "د." alone is the placeholder, not a name worth remembering.
+    if (trimmed.length <= 2) return
+    setRecentDoctors(prev => {
+      const next = [trimmed, ...prev.filter(n => n !== trimmed)].slice(0, MAX_RECENT_DOCTORS)
+      localStorage.setItem(DOCTOR_RECENTS_KEY, JSON.stringify(next))
+      return next
+    })
+  }
 
   const [importBanner, setImportBanner] = useState<{ count: number } | null>(null)
   const [importError, setImportError] = useState<string | null>(null)
@@ -74,11 +129,31 @@ export default function App() {
 
   const patch = (p: Partial<SheetValue>) => setValue(v => ({ ...v, ...p }))
 
-  const handlePrint = async () => {
-    if (window.electronAPI) {
-      await window.electronAPI.printForm({ mode })
-    } else {
+  const showPrintToast = (status: { state: 'done' } | { state: 'error'; message: string }) => {
+    if (printToastTimer.current) clearTimeout(printToastTimer.current)
+    setPrintStatus(status)
+    printToastTimer.current = setTimeout(() => setPrintStatus(null), 12000)
+  }
+
+  const handlePrint = async (showDialog = false) => {
+    if (!window.electronAPI) {
       window.print()
+      return
+    }
+    setPrintStatus({ state: 'printing' })
+    const result = await window.electronAPI.printForm({
+      mode,
+      deviceName: printerName || undefined,
+      showDialog,
+    })
+    if (result.success) {
+      rememberDoctor(doctorName)
+      showPrintToast({ state: 'done' })
+    } else if (showDialog && result.error === 'cancelled') {
+      // User backed out of the OS dialog; not a failure worth a toast.
+      setPrintStatus(null)
+    } else {
+      showPrintToast({ state: 'error', message: result.error ?? 'Unknown error' })
     }
   }
 
@@ -91,7 +166,7 @@ export default function App() {
     document.body.dataset.printMode = 'preprinted'
     try {
       if (window.electronAPI) {
-        await window.electronAPI.printForm({ mode: 'preprinted' })
+        await window.electronAPI.printForm({ mode: 'preprinted', deviceName: printerName || undefined })
       } else {
         window.print()
       }
@@ -115,6 +190,7 @@ export default function App() {
     setImportBanner(null)
     setImportError(null)
     setAutoImport(null)
+    setPrintStatus(null)
   }
 
   const applyImportedSymbols = ({ rightSymbols, leftSymbols }: ParsedSymbols) => {
@@ -177,6 +253,32 @@ export default function App() {
     <div className="p-2 bg-gray-100 ">
       {/* Fixed bottom-right toasts, no layout shift */}
       <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 no-print">
+        {printStatus?.state === 'printing' && (
+          <div className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded shadow-lg">
+            <span className="border-2 border-gray-300 rounded-full size-4 border-t-blue-600 animate-spin" />
+            <span dir="rtl">جارٍ الطباعة…</span>
+          </div>
+        )}
+        {printStatus?.state === 'done' && (
+          <div className="flex items-center gap-3 px-4 py-2 text-sm text-green-800 bg-green-100 border border-green-300 rounded shadow-lg">
+            <span dir="rtl">تمت الطباعة ✓</span>
+            <button
+              type="button"
+              onClick={handleReset}
+              className="px-2 py-1 text-white bg-green-600 rounded cursor-pointer hover:bg-green-700"
+              dir="rtl"
+            >
+              مريض جديد
+            </button>
+            <button type="button" onClick={() => setPrintStatus(null)} className="font-bold text-green-600 hover:text-green-900">✕</button>
+          </div>
+        )}
+        {printStatus?.state === 'error' && (
+          <div className="flex items-center gap-3 px-4 py-2 text-sm text-red-800 bg-red-100 border border-red-300 rounded shadow-lg">
+            <span>Print failed: {printStatus.message}</span>
+            <button type="button" onClick={() => setPrintStatus(null)} className="font-bold text-red-600 hover:text-red-900">✕</button>
+          </div>
+        )}
         {importBanner && (
           <div className="flex items-center gap-3 px-4 py-2 text-sm text-green-800 bg-green-100 border border-green-300 rounded shadow-lg">
             <span>Imported {importBanner.count} symbol{importBanner.count !== 1 ? 's' : ''}, review before printing</span>
@@ -213,6 +315,7 @@ export default function App() {
       <div className="mb-4 no-print">
         <div className="flex flex-wrap items-start justify-center gap-3">
           <PrintModeSwitch mode={mode} onChange={setMode} />
+          <PrinterSelect printerName={printerName} onChange={handlePrinterChange} />
           {/* Calibration registers ink against pre-printed stock; plain paper has
               nothing to register against. */}
           {mode === 'preprinted' && (
@@ -239,27 +342,22 @@ export default function App() {
           </button>
           {/* Doctor Name Input */}
           <label htmlFor="doctor-name" className="my-auto text-sm font-bold">اسم الطبيب:</label>
-          <input
-            id="doctor-name"
-            type="text"
+          <DoctorNameInput
             value={doctorName}
-            onChange={e => {
-              setDoctorName(e.target.value)
-              patch({ doctor: e.target.value })
-            }}
-            className="w-64 px-3 py-1 text-right border border-gray-300 rounded"
-            placeholder="د. "
+            onChange={handleDoctorChange}
+            recents={recentDoctors}
+            onRemoveRecent={removeRecentDoctor}
           />
-          <button
-            type="button"
-            onClick={handlePrint}
-            className="flex items-center gap-2 px-5 py-2 text-gray-700 transition-all bg-white border border-gray-300 rounded shadow-sm cursor-pointer hover:bg-gray-50 hover:shadow"
-          >
-            <svg className="size-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-            </svg>
-            طباعة
-          </button>
+          <SplitButton
+            label="طباعة"
+            icon={
+              <svg className="size-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+            }
+            onClick={() => handlePrint()}
+            menu={[{ label: 'فتح نافذة الطباعة (تخصيص)…', onSelect: () => handlePrint(true) }]}
+          />
           <button
             type="button"
             onClick={handleSave}

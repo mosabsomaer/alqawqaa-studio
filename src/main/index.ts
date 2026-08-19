@@ -94,32 +94,50 @@ async function handleVolumeAdded({ path: volumePath, label }: DetectedVolume) {
 }
 
 // IPC Handlers
-ipcMain.handle('print-form', async (_event, options?: { mode?: 'plain' | 'preprinted' }) => {
-  if (!mainWindow) return { success: false, error: 'No window available' }
-
-  // On pre-printed stock the sheet's own background would lay a full page of
-  // ink over a template that is already there.
-  const preprinted = options?.mode === 'preprinted'
-
-  try {
-    await mainWindow.webContents.print({
-      silent: false,
-      printBackground: !preprinted,
-      margins: {
-        marginType: 'custom',
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
-      },
-      pageRanges: [{ from: 0, to: 0 }], // Print only the first page
-    })
-    return { success: true }
-  } catch (error) {
-    console.error('Print error:', error)
-    return { success: false, error: String(error) }
-  }
+ipcMain.handle('get-printers', async () => {
+  if (!mainWindow) return []
+  return mainWindow.webContents.getPrintersAsync()
 })
+
+ipcMain.handle(
+  'print-form',
+  async (
+    _event,
+    options?: { mode?: 'plain' | 'preprinted'; deviceName?: string; showDialog?: boolean },
+  ) => {
+    const win = mainWindow
+    if (!win) return { success: false, error: 'No window available' }
+
+    // On pre-printed stock the sheet's own background would lay a full page of
+    // ink over a template that is already there.
+    const preprinted = options?.mode === 'preprinted'
+
+    // Default is silent (no OS dialog); showDialog opens it for one-off
+    // customization (different printer, paper size, copies, etc). An empty
+    // deviceName falls back to the system default printer.
+    return new Promise<{ success: boolean; error?: string }>(resolve => {
+      win.webContents.print(
+        {
+          silent: !options?.showDialog,
+          deviceName: options?.deviceName || undefined,
+          printBackground: !preprinted,
+          margins: {
+            marginType: 'custom',
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+          },
+          pageRanges: [{ from: 0, to: 0 }], // Print only the first page
+        },
+        (success, failureReason) => {
+          if (success) resolve({ success: true })
+          else resolve({ success: false, error: failureReason })
+        },
+      )
+    })
+  },
+)
 
 ipcMain.handle('save-form-data', async (_event, formData) => {
   // Future: save to SQLite database

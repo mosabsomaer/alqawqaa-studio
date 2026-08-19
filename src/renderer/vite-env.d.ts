@@ -2,7 +2,15 @@
 
 interface Window {
   electronAPI: {
-    printForm: (options?: { mode?: 'plain' | 'preprinted' }) => Promise<{ success: boolean; error?: string }>
+    printForm: (options?: {
+      mode?: 'plain' | 'preprinted'
+      deviceName?: string
+      showDialog?: boolean
+    }) => Promise<{
+      success: boolean
+      error?: string
+    }>
+    getPrinters: () => Promise<{ name: string; displayName: string; isDefault: boolean }[]>
     saveFormData: (formData: any) => Promise<{ success: boolean }>
     loadFormData: (formId: string) => Promise<{ success: boolean; data: any }>
     importMaicoPdf: () => Promise<{
