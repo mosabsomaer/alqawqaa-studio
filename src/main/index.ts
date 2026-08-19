@@ -1,5 +1,7 @@
 import electron, { BrowserWindow } from 'electron'
 import { join } from 'node:path'
+import { closeDb, deleteTest, getTest, listTests, saveTest } from './db'
+import type { DbResult } from '../shared/tests'
 import { parseMaicoPdf } from './maico/parsePdf'
 import { type DetectedVolume, findLatestPdf, startVolumeWatcher } from './maico/volumeWatcher'
 
@@ -50,6 +52,7 @@ app.whenReady().then(() => {
 app.on('before-quit', () => {
   stopVolumeWatcher?.()
   stopVolumeWatcher = null
+  closeDb()
 })
 
 app.on('window-all-closed', () => {
@@ -139,17 +142,24 @@ ipcMain.handle(
   },
 )
 
-ipcMain.handle('save-form-data', async (_event, formData) => {
-  // Future: save to SQLite database
-  console.log('Saving form data:', formData)
-  return { success: true }
-})
+function dbResult<T>(run: () => T): DbResult<T> {
+  try {
+    return { success: true, data: run() }
+  } catch (err) {
+    console.error('Database error:', err)
+    return { success: false, error: err instanceof Error ? err.message : String(err) }
+  }
+}
 
-ipcMain.handle('load-form-data', async (_event, formId) => {
-  // Future: load from SQLite database
-  console.log('Loading form data:', formId)
-  return { success: true, data: null }
-})
+ipcMain.handle('tests:list', async (_event, query?: string) => dbResult(() => listTests(query ?? '')))
+
+ipcMain.handle('tests:get', async (_event, id: string) => dbResult(() => getTest(id)))
+
+ipcMain.handle('tests:save', async (_event, payload: { id?: string | null; record: unknown }) =>
+  dbResult(() => saveTest(payload?.id ?? null, payload?.record)),
+)
+
+ipcMain.handle('tests:delete', async (_event, id: string) => dbResult(() => deleteTest(id)))
 
 ipcMain.handle('maico:importPdf', async () => {
   if (!mainWindow) return { success: false, error: 'No window' }

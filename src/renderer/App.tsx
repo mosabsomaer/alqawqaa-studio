@@ -1,13 +1,18 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import AudiometryToolbar, { type SymbolType } from './components/AudiometryToolbar'
 import DoctorNameInput from './components/DoctorNameInput'
 import SplitButton from './components/SplitButton'
+import { todayISO } from './dates'
 import { toSheetValue, toStored } from './formMigration'
 import PlainForm from './plain/PlainForm'
 import CalibrationPanel from './print/CalibrationPanel'
 import FormSheet, { type SheetValue } from './print/FormSheet'
 import PrinterSelect from './print/PrinterSelect'
 import PrintModeSwitch from './print/PrintModeSwitch'
+import RecordsDialog from './records/RecordsDialog'
+import SaveButton, { type SaveState } from './records/SaveButton'
+import { testsClient } from './records/client'
+import { TOOLBAR_BUTTON, TOOLBAR_BUTTON_PRIMARY } from './ui/buttons'
 import { migrateSymbols, type PlacedSymbol, serializeSymbols } from './print/panels/AudiogramPanel'
 import { usePrintMode } from './print/usePrintMode'
 
@@ -29,13 +34,6 @@ interface ImportedSymbol {
   freq: number
   db: number
   symbolType: string
-}
-
-/** Local calendar date, not UTC: after midnight in Libya the two differ. */
-function todayISO(): string {
-  const now = new Date()
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
 }
 
 function hasSymbols(serialized: string): boolean {
@@ -129,6 +127,25 @@ export default function App() {
 
   const patch = (p: Partial<SheetValue>) => setValue(v => ({ ...v, ...p }))
 
+  // Saved-test state. `savedJson` is the exact snapshot that reached the
+  // database: editing a field and typing the old value back counts as saved
+  // again, which is what a doctor undoing a typo expects.
+  const [recordId, setRecordId] = useState<string | null>(null)
+  const [savedJson, setSavedJson] = useState(() => JSON.stringify(value))
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [recordsOpen, setRecordsOpen] = useState(false)
+
+  const currentJson = useMemo(() => JSON.stringify(value), [value])
+  const dirty = currentJson !== savedJson
+
+  const saveState: SaveState =
+    saving ? 'saving'
+    : saveError ? 'error'
+    : dirty ? 'dirty'
+    : recordId ? 'saved'
+    : 'clean'
+
   const showPrintToast = (status: { state: 'done' } | { state: 'error'; message: string }) => {
     if (printToastTimer.current) clearTimeout(printToastTimer.current)
     setPrintStatus(status)
@@ -177,20 +194,64 @@ export default function App() {
   }
 
   const handleSave = async () => {
-    const record = toStored(valueRef.current)
-    if (window.electronAPI) {
-      await window.electronAPI.saveFormData(record)
-    } else {
-      console.log('Save data:', record)
+    if (saving) return
+    // Snapshot before the await: whatever the doctor types while the write is
+    // in flight must stay marked unsaved.
+    const snapshot = valueRef.current
+    setSaving(true)
+    setSaveError(null)
+    const result = await testsClient.save(recordId, toStored(snapshot))
+    setSaving(false)
+    if (!result.ok) {
+      setSaveError(result.error)
+      return
     }
+    setRecordId(result.data.id)
+    setSavedJson(JSON.stringify(snapshot))
+    rememberDoctor(snapshot.doctor)
   }
 
-  const handleReset = () => {
-    setValue(getInitialValue())
+  /** Swap the sheet for another record (or a blank one) and clear everything
+      the previous one left on screen. */
+  const loadSheet = (next: SheetValue, id: string | null) => {
+    setValue(next)
+    valueRef.current = next
+    setSavedJson(JSON.stringify(next))
+    setRecordId(id)
+    setSaveError(null)
     setImportBanner(null)
     setImportError(null)
     setAutoImport(null)
     setPrintStatus(null)
+  }
+
+  const handleOpenRecord = async (id: string) => {
+    if (dirty && !confirm('لديك تغييرات غير محفوظة. هل تريد فتح فحص آخر وتجاهلها؟')) return
+
+    const result = await testsClient.get(id)
+    if (!result.ok) {
+      setSaveError(result.error)
+      return
+    }
+    if (!result.data) {
+      setSaveError('لم يعد هذا الفحص موجودًا')
+      return
+    }
+
+    const loaded = toSheetValue(result.data.data)
+    loadSheet(loaded, id)
+    setRecordsOpen(false)
+    // The header field follows the record; the toolbar input follows the doctor
+    // at the machine, so only adopt a name the record actually carries.
+    if (loaded.doctor) {
+      setDoctorName(loaded.doctor)
+      localStorage.setItem(DOCTOR_KEY, loaded.doctor)
+    }
+  }
+
+  const handleReset = () => {
+    if (dirty && !confirm('لديك تغييرات غير محفوظة. هل تريد بدء فحص جديد وتجاهلها؟')) return
+    loadSheet(getInitialValue(), null)
   }
 
   const applyImportedSymbols = ({ rightSymbols, leftSymbols }: ParsedSymbols) => {
@@ -241,6 +302,25 @@ export default function App() {
       applyImportedSymbols(payload.data)
       setAutoImport({ volumeName: payload.volumeName, count, data: payload.data, applied: true })
     })
+  }, [])
+
+  // Ctrl+S is what every Windows user reaches for first. The handler goes
+  // through a ref so the listener subscribes once instead of on every keystroke.
+  const saveShortcut = useRef<() => void>(() => {})
+  useEffect(() => {
+    saveShortcut.current = () => {
+      if (dirty) void handleSave()
+    }
+  })
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault()
+        saveShortcut.current()
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
   }, [])
 
   const handleApplyAutoImport = () => {
@@ -333,7 +413,7 @@ export default function App() {
           <button
             type="button"
             onClick={handleImportMaico}
-            className="flex items-center gap-2 px-5 py-2 text-white transition-all bg-blue-600 border border-blue-700 rounded shadow-sm cursor-pointer hover:bg-blue-700 hover:shadow"
+            className={TOOLBAR_BUTTON_PRIMARY}
           >
             <svg className="size-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
@@ -358,20 +438,22 @@ export default function App() {
             onClick={() => handlePrint()}
             menu={[{ label: 'فتح نافذة الطباعة (تخصيص)…', onSelect: () => handlePrint(true) }]}
           />
+          <SaveButton state={saveState} onSave={handleSave} errorMessage={saveError} />
           <button
             type="button"
-            onClick={handleSave}
-            className="flex items-center gap-2 px-5 py-2 text-gray-700 transition-all bg-white border border-gray-300 rounded shadow-sm cursor-pointer hover:bg-gray-50 hover:shadow"
+            onClick={() => setRecordsOpen(true)}
+            title="الفحوصات المحفوظة"
+            className={TOOLBAR_BUTTON}
           >
             <svg className="size-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
             </svg>
-            حفظ
+            السجلات
           </button>
           <button
             type="button"
             onClick={handleReset}
-            className="flex items-center gap-2 px-5 py-2 text-gray-700 transition-all bg-white border border-gray-300 rounded shadow-sm cursor-pointer hover:bg-gray-50 hover:shadow"
+            className={TOOLBAR_BUTTON}
           >
             <svg className="size-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -383,6 +465,13 @@ export default function App() {
 
       {/* Audiometry Symbol Toolbar */}
       <AudiometryToolbar selectedSymbol={selectedSymbol} onSymbolSelect={setSelectedSymbol} />
+
+      <RecordsDialog
+        open={recordsOpen}
+        onClose={() => setRecordsOpen(false)}
+        currentId={recordId}
+        onOpenRecord={handleOpenRecord}
+      />
 
       <div className="flex justify-center print:block">
         {mode === 'preprinted' ? (
