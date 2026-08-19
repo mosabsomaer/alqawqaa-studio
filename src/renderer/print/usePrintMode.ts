@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { DEFAULT_CALIBRATION, type Calibration, type PrintMode } from './formSpec'
 
 const MODE_KEY = 'alqawqaa.printMode'
-const CALIBRATION_KEY = 'alqawqaa.calibration'
+const CALIBRATION_KEY = 'alqawqaa.calibration.v2'
 
 /**
  * Calibration is a property of the physical printer and its paper tray, not of

@@ -43,7 +43,7 @@ export interface Calibration {
   scale: number
 }
 
-export const DEFAULT_CALIBRATION: Calibration = { offsetX: 0, offsetY: 0, scale: 1 }
+export const DEFAULT_CALIBRATION: Calibration = { offsetX: 1, offsetY: 0, scale: 1 }
 
 /* ------------------------------------------------------------------ *
  * Audiogram frequency axis
