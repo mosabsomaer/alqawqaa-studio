@@ -49,7 +49,7 @@ const LOOKS: Record<SaveState, Look> = {
     disabled: true,
   },
   dirty: {
-    className: 'text-white bg-blue-600 border-blue-700 cursor-pointer hover:bg-blue-700 hover:shadow',
+    className: 'text-amber-900 bg-amber-50 border-amber-300 cursor-pointer hover:bg-amber-100 hover:shadow',
     label: 'حفظ',
     title: 'حفظ الفحص (Ctrl+S)',
     icon: SaveIcon,
@@ -57,7 +57,7 @@ const LOOKS: Record<SaveState, Look> = {
   },
   saving: {
     className: 'text-gray-500 bg-white border-gray-300',
-    label: 'جارٍ الحفظ…',
+    label: 'حفظ…',
     icon: Spinner,
     disabled: true,
   },
@@ -70,7 +70,7 @@ const LOOKS: Record<SaveState, Look> = {
   },
   error: {
     className: 'text-red-800 bg-red-50 border-red-300 cursor-pointer hover:bg-red-100',
-    label: 'فشل الحفظ، أعد المحاولة',
+    label: 'فشل الحفظ',
     icon: SaveIcon,
   },
 }
@@ -89,11 +89,11 @@ export default function SaveButton({ state, onSave, errorMessage }: SaveButtonPr
       disabled={look.disabled}
       onClick={look.disabled ? undefined : onSave}
       title={state === 'error' ? (errorMessage ?? look.label) : look.title}
-      className={`${BUTTON_BASE} min-w-32 justify-center ${look.className}`}
+      className={`${BUTTON_BASE} w-28 justify-center ${look.className}`}
     >
       <Icon />
       <span dir="rtl">{look.label}</span>
-      {look.dot && <span className="rounded-full size-2 bg-amber-300" title="تغييرات غير محفوظة" />}
+      {look.dot && <span className="rounded-full size-2 bg-amber-500" title="تغييرات غير محفوظة" />}
     </button>
   )
 }

@@ -1,18 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import AudiometryToolbar, { type SymbolType } from './components/AudiometryToolbar'
-import DoctorNameInput from './components/DoctorNameInput'
-import SplitButton from './components/SplitButton'
+import ControlPanel from './components/ControlPanel'
 import { todayISO } from './dates'
 import { toSheetValue, toStored } from './formMigration'
 import PlainForm from './plain/PlainForm'
-import CalibrationPanel from './print/CalibrationPanel'
 import FormSheet, { type SheetValue } from './print/FormSheet'
-import PrinterSelect from './print/PrinterSelect'
-import PrintModeSwitch from './print/PrintModeSwitch'
 import RecordsDialog from './records/RecordsDialog'
-import SaveButton, { type SaveState } from './records/SaveButton'
+import type { SaveState } from './records/SaveButton'
 import { testsClient } from './records/client'
-import { TOOLBAR_BUTTON, TOOLBAR_BUTTON_PRIMARY } from './ui/buttons'
 import { migrateSymbols, type PlacedSymbol, serializeSymbols } from './print/panels/AudiogramPanel'
 import { usePrintMode } from './print/usePrintMode'
 
@@ -304,20 +299,26 @@ export default function App() {
     })
   }, [])
 
-  // Ctrl+S is what every Windows user reaches for first. The handler goes
+  // Ctrl+S / Ctrl+P are what every Windows user reaches for first. They go
   // through a ref so the listener subscribes once instead of on every keystroke.
-  const saveShortcut = useRef<() => void>(() => {})
+  const shortcuts = useRef<{ save: () => void; print: () => void }>({ save: () => {}, print: () => {} })
   useEffect(() => {
-    saveShortcut.current = () => {
-      if (dirty) void handleSave()
+    shortcuts.current = {
+      save: () => {
+        if (dirty) void handleSave()
+      },
+      print: () => void handlePrint(),
     }
   })
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
-        e.preventDefault()
-        saveShortcut.current()
-      }
+      // AltGr on a Windows Arabic layout reports itself as Ctrl+Alt, so a
+      // plain keystroke would otherwise fire the shortcut and eject a page.
+      if (e.altKey || e.repeat || !(e.ctrlKey || e.metaKey)) return
+      if (e.code !== 'KeyS' && e.code !== 'KeyP') return
+      e.preventDefault()
+      if (e.code === 'KeyS') shortcuts.current.save()
+      else shortcuts.current.print()
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
@@ -391,77 +392,27 @@ export default function App() {
           </div>
         )}
       </div>
-      {/* Toolbar - Hidden when printing */}
-      <div className="mb-4 no-print">
-        <div className="flex flex-wrap items-start justify-center gap-3">
-          <PrintModeSwitch mode={mode} onChange={setMode} />
-          <PrinterSelect printerName={printerName} onChange={handlePrinterChange} />
-          {/* Calibration registers ink against pre-printed stock; plain paper has
-              nothing to register against. */}
-          {mode === 'preprinted' && (
-            <CalibrationPanel
-              calibration={calibration}
-              onChange={setCalibration}
-              onReset={resetCalibration}
-              onAlignmentTest={handleAlignmentTest}
-            />
-          )}
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-3 mt-3">
-          <button
-            type="button"
-            onClick={handleImportMaico}
-            className={TOOLBAR_BUTTON_PRIMARY}
-          >
-            <svg className="size-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-            </svg>
-            Import Maico
-          </button>
-          {/* Doctor Name Input */}
-          <label htmlFor="doctor-name" className="my-auto text-sm font-bold">اسم الطبيب:</label>
-          <DoctorNameInput
-            value={doctorName}
-            onChange={handleDoctorChange}
-            recents={recentDoctors}
-            onRemoveRecent={removeRecentDoctor}
-          />
-          <SplitButton
-            label="طباعة"
-            icon={
-              <svg className="size-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-              </svg>
-            }
-            onClick={() => handlePrint()}
-            menu={[{ label: 'فتح نافذة الطباعة (تخصيص)…', onSelect: () => handlePrint(true) }]}
-          />
-          <SaveButton state={saveState} onSave={handleSave} errorMessage={saveError} />
-          <button
-            type="button"
-            onClick={() => setRecordsOpen(true)}
-            title="الفحوصات المحفوظة"
-            className={TOOLBAR_BUTTON}
-          >
-            <svg className="size-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-            </svg>
-            السجلات
-          </button>
-          <button
-            type="button"
-            onClick={handleReset}
-            className={TOOLBAR_BUTTON}
-          >
-            <svg className="size-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            إعادة تعيين
-          </button>
-        </div>
-      </div>
+      <ControlPanel
+        mode={mode}
+        onModeChange={setMode}
+        printerName={printerName}
+        onPrinterChange={handlePrinterChange}
+        calibration={calibration}
+        onCalibrationChange={setCalibration}
+        onCalibrationReset={resetCalibration}
+        onAlignmentTest={handleAlignmentTest}
+        doctorName={doctorName}
+        onDoctorChange={handleDoctorChange}
+        recentDoctors={recentDoctors}
+        onRemoveRecentDoctor={removeRecentDoctor}
+        onImportMaico={handleImportMaico}
+        onPrint={handlePrint}
+        saveState={saveState}
+        saveError={saveError}
+        onSave={handleSave}
+        onOpenRecords={() => setRecordsOpen(true)}
+        onReset={handleReset}
+      />
 
       {/* Audiometry Symbol Toolbar */}
       <AudiometryToolbar selectedSymbol={selectedSymbol} onSymbolSelect={setSelectedSymbol} />

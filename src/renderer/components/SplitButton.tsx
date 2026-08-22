@@ -1,19 +1,33 @@
 import { useEffect, useRef, useState } from 'react'
 
 interface SplitButtonProps {
-  label: string
+  label: React.ReactNode
   icon: React.ReactNode
   onClick: () => void
   menu: Array<{ label: string; onSelect: () => void }>
+  variant?: 'primary' | 'default'
+  title?: string
 }
 
 /**
  * Main action + attached caret opening a small menu of alternate actions, so
  * the primary path stays one click without a second full-size button next to it.
  */
-export default function SplitButton({ label, icon, onClick, menu }: SplitButtonProps) {
+const LOOK = {
+  primary: {
+    main: 'text-white bg-blue-600 border-blue-700 hover:bg-blue-700',
+    caret: 'text-blue-100 bg-blue-600 border-blue-700 hover:bg-blue-700',
+  },
+  default: {
+    main: 'text-gray-700 bg-white border-gray-300 hover:bg-gray-50',
+    caret: 'text-gray-500 bg-white border-gray-300 hover:bg-gray-50',
+  },
+}
+
+export default function SplitButton({ label, icon, onClick, menu, variant = 'default', title }: SplitButtonProps) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
+  const look = LOOK[variant]
 
   useEffect(() => {
     if (!open) return
@@ -29,7 +43,8 @@ export default function SplitButton({ label, icon, onClick, menu }: SplitButtonP
       <button
         type="button"
         onClick={onClick}
-        className="flex items-center gap-2 py-2 pl-5 pr-3 text-gray-700 transition-all bg-white border border-gray-300 rounded-l shadow-sm cursor-pointer hover:bg-gray-50 hover:shadow"
+        title={title}
+        className={`flex items-center h-10 gap-2 ps-4 pe-3 text-sm font-bold transition-all border rounded-s shadow-sm cursor-pointer hover:shadow ${look.main}`}
       >
         {icon}
         {label}
@@ -39,7 +54,7 @@ export default function SplitButton({ label, icon, onClick, menu }: SplitButtonP
         onClick={() => setOpen(o => !o)}
         aria-label="More print options"
         aria-expanded={open}
-        className="flex items-center px-1.5 text-gray-500 transition-all bg-white border border-l-0 border-gray-300 rounded-r shadow-sm cursor-pointer hover:bg-gray-50 hover:shadow"
+        className={`flex items-center h-10 px-1.5 transition-all border border-s-0 rounded-e shadow-sm cursor-pointer hover:shadow ${look.caret}`}
       >
         <svg className="size-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -47,7 +62,7 @@ export default function SplitButton({ label, icon, onClick, menu }: SplitButtonP
       </button>
 
       {open && (
-        <ul className="absolute left-0 z-50 py-1 mt-1 bg-white border border-gray-300 rounded shadow-lg top-full w-56">
+        <ul className="absolute end-0 z-50 py-1 mt-1 bg-white border border-gray-300 rounded shadow-lg top-full w-60">
           {menu.map(item => (
             <li key={item.label}>
               <button
@@ -56,7 +71,8 @@ export default function SplitButton({ label, icon, onClick, menu }: SplitButtonP
                   setOpen(false)
                   item.onSelect()
                 }}
-                className="w-full px-3 py-2 text-sm text-left text-gray-700 cursor-pointer hover:bg-gray-50"
+                className="w-full px-3 py-2 text-sm text-right text-gray-700 cursor-pointer hover:bg-gray-50"
+                dir="rtl"
               >
                 {item.label}
               </button>

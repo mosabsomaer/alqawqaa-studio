@@ -16,6 +16,8 @@ export default function DoctorNameInput({ value, onChange, recents, onRemoveRece
       <input
         id="doctor-name"
         type="text"
+        aria-label="اسم الطبيب"
+        title="اسم الطبيب"
         value={value}
         onChange={e => onChange(e.target.value)}
         onFocus={() => setOpen(true)}
@@ -23,7 +25,7 @@ export default function DoctorNameInput({ value, onChange, recents, onRemoveRece
           // Keep the list open while a click lands inside it.
           if (!rootRef.current?.contains(e.relatedTarget as Node)) setOpen(false)
         }}
-        className="w-64 px-3 py-1 text-right border border-gray-300 rounded"
+        className="w-48 h-10 px-3 text-sm text-right bg-white border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         placeholder="د. "
         autoComplete="off"
       />

@@ -63,7 +63,7 @@ const singleSymbols: Array<{ type: SymbolType; label: string; color: string; des
 export default function AudiometryToolbar({ selectedSymbol, onSymbolSelect }: AudiometryToolbarProps) {
   return (
     <div className="flex mx-auto flex-row items-center justify-center gap-2 p-3 mb-4 bg-white border border-gray-300 rounded shadow w-[210mm] no-print">
-      <span className="mr-2 text-sm font-bold">Symbol:</span>
+      <span className="text-sm font-bold text-gray-600 me-2" dir="rtl">الرمز:</span>
 
       {/* Paired symbols */}
       {symbolPairs.map((pair) => {
